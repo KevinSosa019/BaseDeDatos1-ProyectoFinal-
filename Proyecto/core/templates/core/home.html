@@ -1,0 +1,24 @@
+{% extends 'core/base.html' %}
+{% block content %}
+  <main class="px-3">
+
+
+    <div class="card-section section-1">
+      <img src="/media/Hondudemy.jpeg" alt="Bootstrap" width="700" height="350">
+    </div>
+
+    {% if request.user.is_authenticated %}
+
+      <p class="lead">{% if request.user.is_authenticated %}<h1>Bienvenido  {{ user.username | upper }}</h1>
+        
+      {% endif %}Estamos encantados de tenerte con nosotros. En Hondudemy, encontrarás una amplia variedad de cursos y tutorías para impulsar tu conocimiento y habilidades. Como nuevo usuario, disfruta de un 20% de descuento en tu primer curso online. ¡Comienza a aprender hoy mismo y alcanza tus metas con Hondudemy!!!!</p>
+
+    {% else %}
+
+      <p class="lead">Hondudemy es una innovadora plataforma en línea dedicada a ofrecer una amplia variedad de tutorías y cursos educativos. Con una interfaz fácil de usar y una rica biblioteca de cursos en áreas como tecnología, negocios, arte y desarrollo personal, Hondudemy conecta a estudiantes con instructores expertos, permitiendo a los usuarios aprender a su propio ritmo y desde cualquier lugar. La empresa fomenta una comunidad de aprendizaje colaborativo, donde tanto instructores como estudiantes pueden interactuar y compartir conocimientos.</p>
+
+    {% endif %}
+
+    
+  </main>
+{% endblock %}

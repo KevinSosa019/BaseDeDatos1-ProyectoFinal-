@@ -1,0 +1,95 @@
+.modal-content {
+    background-color: #343a40; /* Fondo oscuro */
+    color: #f8f9fa; /* Texto claro */
+}
+
+.bg-nav {
+    background-color: #212529; /* Ajusta este color según tu fondo oscuro */
+}
+/* Asegúrate de que este archivo esté correctamente cargado */
+.navbar .nav-link.active {
+    border-bottom: 2px solid white !important;
+    padding-bottom: 0.5rem !important; /* Ajusta el espacio según sea necesario */
+}
+
+/*Nosotros *\
+
+
+/* Estilo para el contenedor de la tarjeta de "Quiénes Somos" */
+.card-section.section-2 {
+    background-color: #333333; /* Gris oscuro de fondo para la sección */
+    padding: 20px; /* Espaciado interno para el texto */
+    border-radius: 8px; /* Bordes redondeados */
+    color: #ffffff; /* Color del texto blanco */
+    max-width: 600px; /* Ancho máximo fijo */
+    margin: 0 auto; /* Centrar horizontalmente */
+}
+
+/* Estilo adicional para el título de la sección */
+.card-title {
+    color: #ffffff; /* Blanco para el título */
+    margin-bottom: 15px; /* Espacio debajo del título */
+    font-size: 1.5rem; /* Tamaño del texto del título */
+}
+
+/* Asegurarse de que el fondo del contenedor principal sea el deseado */
+.bg-fondo {
+    background-color: #222222; /* Gris oscuro para el fondo general */
+    padding: 20px; /* Espacio interno en el contenedor */
+}
+
+/* Fondo negro para el contenedor de la tarjeta */
+.bg-black {
+    background-color: #000000; /* Fondo negro */
+}
+
+/*Boton busqueda*\
+
+/* Estilo personalizado para el botón de búsqueda */
+.btn-custom-search {
+    color: #000000; /* Color del texto negro */
+    border: 1px solid #ffffff; /* Borde blanco */
+    background-color: #ffffff; /* Fondo blanco */
+}
+
+
+/*Registro ''''''''''''''''''''''''''''''''''''''''''''''''''''*\
+
+/* Estilos generales para el formulario de registro */
+.form-signin {
+    max-width: 500px;
+    margin: auto;
+    padding: 15px;
+}
+
+.card {
+    border-radius: 10px; /* Bordes redondeados para la tarjeta */
+    background-color: #343a40; /* Fondo oscuro */
+    color: #f8f9fa; /* Texto claro */
+}
+
+.card-title {
+    color: #f8f9fa; /* Título de la tarjeta en color claro */
+}
+
+.card-title-black {
+    color: black; /* Cambia el color del texto del título a negro */
+}
+
+.btn-primary {
+    background-color: #007bff; /* Fondo del botón */
+    border: none; /* Sin borde */
+}
+
+.btn-primary:hover {
+    background-color: #0056b3; /* Fondo del botón al pasar el mouse */
+}
+
+.btn-link {
+    color: #f8f9fa; /* Color del enlace */
+}
+
+.btn-link:hover {
+    color: #007bff; /* Color del enlace al pasar el mouse */
+}
+

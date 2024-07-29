@@ -1,0 +1,42 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+{% load crispy_forms_tags %}
+
+<h3>REGISTRO DE USUARIO</h3>
+
+<br>
+
+<form id="register-form" action="" method="post">
+    {% csrf_token %}
+
+    <div class="card mx-auto" style="width: 30rem;">
+        <div class="card-body ">
+            <h3>Complete todos los campos</h3>
+            {{ formulario | crispy }}
+
+            <!-- Mensajes de error personalizados -->
+            {% if formulario.errors %}
+                <div class="alert alert-danger">
+                    <ul>
+                        {% for field in formulario %}
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in formulario.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <a href="{% url 'home' %}" class="card-link">Inicio</a>
+            <a href="{% url 'login' %}" class="card-link">Iniciar sesión</a>
+            <button class="btn btn-sm btn-primary float-end" type="submit">Registrarse</button>
+        </div>
+    </div>
+</form>
+
+{% endblock %}
