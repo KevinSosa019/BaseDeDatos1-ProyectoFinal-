@@ -70,8 +70,8 @@ DATABASES = {
         'ENGINE': 'mssql',
         'NAME': 'Proyecto',
         'USER': 'sa',
-        'PASSWORD': 'ichigo19.',
-        'HOST': 'DESKTOP-PU1H6AA',
+        'PASSWORD': '1234',
+        'HOST': 'DESKTOP-KTRFOTK\SQLEXPRESS',
         'PORT': '',
 
         'OPTIONS': {
