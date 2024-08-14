@@ -24,7 +24,8 @@
             <nav class="navbar navbar-expand-lg nav-masthead sticky-top bg-nav">
                 <div class="container-fluid">
                     <a class="navbar-brand text-light" href="{% url 'home' %}">
-                        <img src="/media/h3.jpeg" alt="Bootstrap" width="50" height="50">
+                    <img src="/media/h3.jpeg" alt="Hondudemy" width="50" height="50">
+
                         <h3 class="float-md-start mb-0">Hondudemy</h3>
                     </a>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,20 +35,13 @@
                 
                 <div class="collapse navbar-collapse text-light" id="navbarNav">
                     <a class="nav-link fw-bold py-1 px-0 {% if current_page == 'nosotros' %}active{% endif %} ms-3" href="{% url 'nosotros' %}">Nosotros</a>
-                
-                    {% if request.user.is_authenticated %}
-
-                        <a class="nav-link fw-bold py-1 px-0 {% if current_page == 'products' %}active{% endif %} ms-3" href="{% url 'products' %}">Productos</a>
-                        <!-- Botón que abre el modal -->
-                        <button type="button" class="btn nav-link fw-bold py-1 px-0 ms-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                            Salir
-                        </button>
-                        
-                    {% else %}
-                        <a class="nav-link fw-bold py-1 px-0 {% if current_page == 'login' %}active{% endif %} ms-3" href="{% url 'login' %}">Ingresar</a>
-                        <a class="nav-link fw-bold py-1 px-0 {% if current_page == 'register' %}active{% endif %} ms-3" href="{% url 'register' %}">Registrarse</a>
-                    {% endif %}
-                </div>
+                    <a class="nav-link fw-bold py-1 px-0 {% if current_page == 'products' %}active{% endif %} ms-3" href="{% url 'cursos' %}">Cursos</a>
+                    <button type="button" class="btn nav-link fw-bold py-1 px-0 ms-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        Salir
+                    </button>
+                    <a class="nav-link fw-bold py-1 px-0 {% if current_page == 'login' %}active{% endif %} ms-3" href="{% url 'login' %}">Ingresar</a>
+                    <a class="nav-link fw-bold py-1 px-0 {% if current_page == 'register' %}active{% endif %} ms-3" href="{% url 'register' %}">Registrarse</a>
+            </div>
 
                 <!-- Botón de Buscar -->
                 <form id="searchForm" class="d-flex justify-content-end ms-3" action="{% url 'busqueda' %}" method="GET"> <!-- Alineación al final -->
@@ -70,7 +64,6 @@
         </footer>
     </div>
 
-    <!-- Modal -->
     <!-- Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">

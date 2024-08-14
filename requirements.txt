@@ -1,3 +1,4 @@
 django == 5.0.1
 mssql-django==1.4
-crispy-bootstrap5==2024.2
+crispy-bootstrap5==2024.
+pip install django-pyodbc-azure
