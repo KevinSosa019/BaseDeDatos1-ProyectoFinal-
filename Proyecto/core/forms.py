@@ -38,21 +38,19 @@ class CustomUserCreationForm(forms.Form):
 
 """-------------------------------------------------------------------------------------------------"""
 
-
+  
 class CursoForm(forms.Form):
-    IdInstructor = forms.ChoiceField(choices=[])
-    IdCategoriaCurso = forms.ChoiceField(choices=[])
-    Costo = forms.DecimalField()
+    IdInstructor = forms.IntegerField(label='Instructor')
+    IdCategoriaCurso = forms.IntegerField(label='Categoría del Curso')
+    Costo = forms.DecimalField(decimal_places=2, max_digits=18)
     Titulo = forms.CharField(max_length=255)
     Descripcion = forms.CharField(widget=forms.Textarea, required=False)
-    FechaInicio = forms.DateField()
-    FechaFinal = forms.DateField()
+    FechaInicio = forms.DateField(widget=forms.SelectDateWidget())
+    FechaFinal = forms.DateField(widget=forms.SelectDateWidget())
 
     def __init__(self, *args, **kwargs):
-        instructores = kwargs.pop('instructores', [])
-        categorias = kwargs.pop('categorias', [])
-        super().__init__(*args, **kwargs)
-        self.fields['IdInstructor'].choices = instructores
-        self.fields['IdCategoriaCurso'].choices = categorias
-        
-        
+        opciones_instructor = kwargs.pop('opciones_instructor', [])
+        opciones_categoria = kwargs.pop('opciones_categoria', [])
+        super(CursoForm, self).__init__(*args, **kwargs)
+        self.fields['IdInstructor'].widget = forms.Select(choices=opciones_instructor)
+        self.fields['IdCategoriaCurso'].widget = forms.Select(choices=opciones_categoria)

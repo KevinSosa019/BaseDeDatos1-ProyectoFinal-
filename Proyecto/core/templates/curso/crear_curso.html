@@ -13,12 +13,21 @@
 
       <form method="post">
         {% csrf_token %}
-        {{ formulario.as_p }}
-        <input type="submit" value="Crear curso">
-    </form>
+        {{ formulario.as_p }}  <!-- Muestra todos los campos y errores del formulario -->
+        <button type="submit">Crear Curso</button>
+      </form>
+      
+      <!-- Mostrar errores globales del formulario -->
+      {% if formulario.non_field_errors %}
+          <div class="errorlist">
+              {% for error in formulario.non_field_errors %}
+                  <p>{{ error }}</p>
+              {% endfor %}
+          </div>
+      {% endif %}
     
-    </div>
 
+    </div>
   </div>
 </main>
 {% endblock %}

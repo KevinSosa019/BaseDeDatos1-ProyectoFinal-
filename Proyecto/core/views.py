@@ -6,6 +6,7 @@ from .forms import CustomUserCreationForm
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib import messages
 from django.db import IntegrityError
+from .forms import CursoForm
 
 def home(request):
     return render(request, 'core/home.html', {'current_page': 'home'})
@@ -115,45 +116,67 @@ def autenticar_usuario(nombre_usuario, contrasenia):
             return check_password(contrasenia, stored_password)
         return False
 
-from .forms import CursoForm
 
 
 """-----------------------------------------------------------------------"""
 
-def listar_cursos(request):
-    cursos = []
+def verCursos(request):
     with connection.cursor() as cursor:
         cursor.execute("""
-            SELECT C.Id, C.IdInstructor, I.Nombre1, I.Nombre2, I.Apellido1, I.Apellido2, C.Titulo, C.Descripcion, C.Costo, C.FechaInicio, C.FechaFinal
+            SELECT C.Id, C.Titulo, C.Descripcion, C.Costo, C.FechaInicio, C.FechaFinal,
+                   CONCAT_WS(' ', U.Nombre1, U.Nombre2, U.Apellido1, U.Apellido2) AS NombreInstructor
             FROM Cursos C
-            JOIN Usuarios I ON C.IdInstructor = I.Id
+            JOIN Instructores I ON C.IdInstructor = I.Id
+            JOIN Usuarios U ON I.IdUsuario = U.Id
+            ORDER BY C.FechaInicio DESC
         """)
         cursos = cursor.fetchall()
 
-    cursos = [
-        {
+    cursos_formateados = []
+    for curso in cursos:
+        cursos_formateados.append({
             'Id': curso[0],
-            'IdInstructor': {
-                'Nombre': f"{curso[2]} {curso[3]} {curso[4]} {curso[5]}"
-            },
-            'Titulo': curso[6],
-            'Descripcion': curso[7],
-            'Costo': curso[8],
-            'FechaInicio': curso[9],
-            'FechaFinal': curso[10]
-        } for curso in cursos
-    ]
-    return render(request, 'curso/cursos.html', {'cursos': cursos})
+            'Titulo': curso[1],
+            'Descripcion': curso[2],
+            'Costo': curso[3],
+            'FechaInicio': curso[4],
+            'FechaFinal': curso[5],
+            'NombreInstructor': curso[6]
+        })
+    return render(request, 'curso/verCursos.html', {'cursos': cursos_formateados})
+
+
+def obtener_opciones(query):
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        opciones = cursor.fetchall()
+    return [(int(opcion[0]), str(opcion[1])) for opcion in opciones]
 
 
 def crear_curso(request):
+    # Consulta para obtener instructores con nombre completo
+    query_instructores = """
+    SELECT I.Id, CONCAT_WS(' ', U.Nombre1, U.Nombre2, U.Apellido1, U.Apellido2) AS NombreCompleto
+    FROM Instructores I
+    JOIN Usuarios U ON I.IdUsuario = U.Id
+    """
+    opciones_instructor = obtener_opciones(query_instructores)
+    
+    # Consulta para obtener categorías de cursos
+    query_categorias = "SELECT Id, Nombre FROM CategoriaCursos"
+    opciones_categoria = obtener_opciones(query_categorias)
+
     if request.method == 'POST':
-        formulario = CursoForm(request.POST)
-        print("Formulario inicial:", formulario.data)
+        formulario = CursoForm(request.POST, opciones_instructor=opciones_instructor, opciones_categoria=opciones_categoria)
+        
+        # Imprimir los datos enviados en la solicitud POST
+        print("Datos POST:", request.POST)
+        
+        # Imprimir los errores del formulario para depuración
+        print("Formulario válido:", formulario.is_valid())
+        print("Errores del formulario:", formulario.errors)
         
         if formulario.is_valid():
-            print("aqui Formulario valido")
-
             IdInstructor = formulario.cleaned_data['IdInstructor']
             IdCategoriaCurso = formulario.cleaned_data['IdCategoriaCurso']
             Costo = formulario.cleaned_data['Costo']
@@ -161,45 +184,21 @@ def crear_curso(request):
             Descripcion = formulario.cleaned_data['Descripcion']
             FechaInicio = formulario.cleaned_data['FechaInicio']
             FechaFinal = formulario.cleaned_data['FechaFinal']
-            print("Datos del formulario:", IdInstructor, IdCategoriaCurso, Costo, Titulo, Descripcion, FechaInicio, FechaFinal)
-
-            # Verificar que IdInstructor e IdCategoriaCurso existen en la base de datos
+            
             with connection.cursor() as cursor:
-                cursor.execute("SELECT Id FROM Instructores WHERE Id = %s", [IdInstructor])
-                if not cursor.fetchone():
-                    formulario.add_error('IdInstructor', 'Instructor no válido.')
-                    print("aqui Instructor")
-
-                cursor.execute("SELECT Id FROM CategoriaCursos WHERE Id = %s", [IdCategoriaCurso])
-                if not cursor.fetchone():
-                    formulario.add_error('IdCategoriaCurso', 'Categoría de curso no válida.')
-                    print("aqui Categoria")
-
-                if formulario.is_valid():
-                    cursor.execute("""
-                        INSERT INTO Cursos (IdInstructor, IdCategoriaCurso, Costo, Titulo, Descripcion, FechaInicio, FechaFinal)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s)
-                    """, [IdInstructor, IdCategoriaCurso, Costo, Titulo, Descripcion, FechaInicio, FechaFinal])
-                    connection.commit()
-                    return redirect('listar_cursos')
-        else:
-            print("Errores en el formulario:", formulario.errors)
+                # Insertar el curso en la base de datos
+                cursor.execute("""
+                    INSERT INTO Cursos (IdInstructor, IdCategoriaCurso, Costo, Titulo, Descripcion, FechaInicio, FechaFinal)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, [IdInstructor, IdCategoriaCurso, Costo, Titulo, Descripcion, FechaInicio, FechaFinal])
+                connection.commit()
+            
+            return redirect('verCursos')
     else:
-        # Obtener opciones para el formulario
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT I.Id, CONCAT_WS(' ', U.Nombre1, U.Nombre2, U.Apellido1, U.Apellido2) AS NombreCompleto
-                FROM Instructores I
-                JOIN Usuarios U ON I.IdUsuario = U.Id
-            """)
-            instructores = [(row[0], row[1]) for row in cursor.fetchall()]
-
-            cursor.execute("SELECT Id, Nombre FROM CategoriaCursos")
-            categorias = [(row[0], row[1]) for row in cursor.fetchall()]
-
-        formulario = CursoForm(instructores=instructores, categorias=categorias)
-
+        formulario = CursoForm(opciones_instructor=opciones_instructor, opciones_categoria=opciones_categoria)
+    
     return render(request, 'curso/crear_curso.html', {'formulario': formulario})
+
 
 
 
