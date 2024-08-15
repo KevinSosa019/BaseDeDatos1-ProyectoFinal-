@@ -35,3 +35,24 @@ class CustomUserCreationForm(forms.Form):
             raise ValidationError("Las contraseñas no coinciden.")
         
         return cleaned_data
+
+"""-------------------------------------------------------------------------------------------------"""
+
+
+class CursoForm(forms.Form):
+    IdInstructor = forms.ChoiceField(choices=[])
+    IdCategoriaCurso = forms.ChoiceField(choices=[])
+    Costo = forms.DecimalField()
+    Titulo = forms.CharField(max_length=255)
+    Descripcion = forms.CharField(widget=forms.Textarea, required=False)
+    FechaInicio = forms.DateField()
+    FechaFinal = forms.DateField()
+
+    def __init__(self, *args, **kwargs):
+        instructores = kwargs.pop('instructores', [])
+        categorias = kwargs.pop('categorias', [])
+        super().__init__(*args, **kwargs)
+        self.fields['IdInstructor'].choices = instructores
+        self.fields['IdCategoriaCurso'].choices = categorias
+        
+        

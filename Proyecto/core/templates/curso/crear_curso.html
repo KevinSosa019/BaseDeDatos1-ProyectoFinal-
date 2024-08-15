@@ -1,0 +1,24 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<main class="px-3">
+  <section class="text-center">
+    <div class="col-lg-6 col-md-12 mx-auto">
+      <h1 class="fw-light">Crear Nuevo Curso</h1>
+    </div>
+  </section>
+
+  <div class="album py-5 bg-dark">
+    <div class="container">
+
+      <form method="post">
+        {% csrf_token %}
+        {{ formulario.as_p }}
+        <input type="submit" value="Crear curso">
+    </form>
+    
+    </div>
+
+  </div>
+</main>
+{% endblock %}

@@ -72,10 +72,10 @@ WSGI_APPLICATION = 'Proyecto.wsgi.application'
 DATABASES = {
     'default': { 
         'ENGINE': 'mssql',
-        'NAME': 'Hondudemy',
+        'NAME': 'Hondudemy1',
         'USER': 'sa',
-        'PASSWORD': '1234',
-        'HOST': 'DESKTOP-KTRFOTK\SQLEXPRESS',
+        'PASSWORD': 'ichigo19.',
+        'HOST': 'DESKTOP-PU1H6AA',
         'PORT': '',
 
         'OPTIONS': {

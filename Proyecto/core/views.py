@@ -33,7 +33,6 @@ def register(request):
     }
     if request.method == 'POST':
         formulario = CustomUserCreationForm(request.POST)
-
         if formulario.is_valid():
             # Obtener los datos del formulario
             dni = formulario.cleaned_data['dni']
@@ -115,3 +114,93 @@ def autenticar_usuario(nombre_usuario, contrasenia):
             stored_password = resultado[0]
             return check_password(contrasenia, stored_password)
         return False
+
+from .forms import CursoForm
+
+
+"""-----------------------------------------------------------------------"""
+
+def listar_cursos(request):
+    cursos = []
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT C.Id, C.IdInstructor, I.Nombre1, I.Nombre2, I.Apellido1, I.Apellido2, C.Titulo, C.Descripcion, C.Costo, C.FechaInicio, C.FechaFinal
+            FROM Cursos C
+            JOIN Usuarios I ON C.IdInstructor = I.Id
+        """)
+        cursos = cursor.fetchall()
+
+    cursos = [
+        {
+            'Id': curso[0],
+            'IdInstructor': {
+                'Nombre': f"{curso[2]} {curso[3]} {curso[4]} {curso[5]}"
+            },
+            'Titulo': curso[6],
+            'Descripcion': curso[7],
+            'Costo': curso[8],
+            'FechaInicio': curso[9],
+            'FechaFinal': curso[10]
+        } for curso in cursos
+    ]
+    return render(request, 'curso/cursos.html', {'cursos': cursos})
+
+
+def crear_curso(request):
+    if request.method == 'POST':
+        formulario = CursoForm(request.POST)
+        print("Formulario inicial:", formulario.data)
+        
+        if formulario.is_valid():
+            print("aqui Formulario valido")
+
+            IdInstructor = formulario.cleaned_data['IdInstructor']
+            IdCategoriaCurso = formulario.cleaned_data['IdCategoriaCurso']
+            Costo = formulario.cleaned_data['Costo']
+            Titulo = formulario.cleaned_data['Titulo']
+            Descripcion = formulario.cleaned_data['Descripcion']
+            FechaInicio = formulario.cleaned_data['FechaInicio']
+            FechaFinal = formulario.cleaned_data['FechaFinal']
+            print("Datos del formulario:", IdInstructor, IdCategoriaCurso, Costo, Titulo, Descripcion, FechaInicio, FechaFinal)
+
+            # Verificar que IdInstructor e IdCategoriaCurso existen en la base de datos
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT Id FROM Instructores WHERE Id = %s", [IdInstructor])
+                if not cursor.fetchone():
+                    formulario.add_error('IdInstructor', 'Instructor no válido.')
+                    print("aqui Instructor")
+
+                cursor.execute("SELECT Id FROM CategoriaCursos WHERE Id = %s", [IdCategoriaCurso])
+                if not cursor.fetchone():
+                    formulario.add_error('IdCategoriaCurso', 'Categoría de curso no válida.')
+                    print("aqui Categoria")
+
+                if formulario.is_valid():
+                    cursor.execute("""
+                        INSERT INTO Cursos (IdInstructor, IdCategoriaCurso, Costo, Titulo, Descripcion, FechaInicio, FechaFinal)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    """, [IdInstructor, IdCategoriaCurso, Costo, Titulo, Descripcion, FechaInicio, FechaFinal])
+                    connection.commit()
+                    return redirect('listar_cursos')
+        else:
+            print("Errores en el formulario:", formulario.errors)
+    else:
+        # Obtener opciones para el formulario
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT I.Id, CONCAT_WS(' ', U.Nombre1, U.Nombre2, U.Apellido1, U.Apellido2) AS NombreCompleto
+                FROM Instructores I
+                JOIN Usuarios U ON I.IdUsuario = U.Id
+            """)
+            instructores = [(row[0], row[1]) for row in cursor.fetchall()]
+
+            cursor.execute("SELECT Id, Nombre FROM CategoriaCursos")
+            categorias = [(row[0], row[1]) for row in cursor.fetchall()]
+
+        formulario = CursoForm(instructores=instructores, categorias=categorias)
+
+    return render(request, 'curso/crear_curso.html', {'formulario': formulario})
+
+
+
+
