@@ -26,6 +26,19 @@
                 <p class="card-text">Fecha Final: {{ curso.FechaFinal|date:"d/m/Y" }}</p>
                 <p class="card-text">Instructor: {{ curso.NombreInstructor }}</p>
               </div>
+
+              <div class="card-footer d-flex justify-content-between align-items-center">
+                <div class="btn-group">
+                  <a href="verUnCurso/{{curso.Id}}" class="btn btn-sm btn-light">Ver</a>
+                  <a href="editarCurso/{{curso.Id}}" class="btn btn-sm btn-light">Editar</a>
+                  <a href="eliminarCurso/{{curso.Id}}" class="btn btn-sm btn-light">Eliminar</a>
+
+                 
+
+
+                </div>
+                <small class="text-muted">Publicado hace {{ curso.fechaPublicacion|date:"d/m/Y" }}</small>
+              </div>
             </div>
           </div>
         {% empty %}

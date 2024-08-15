@@ -7,6 +7,8 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.contrib import messages
 from django.db import IntegrityError
 from .forms import CursoForm
+from django.http import HttpResponseNotFound
+
 
 def home(request):
     return render(request, 'core/home.html', {'current_page': 'home'})
@@ -200,6 +202,95 @@ def crear_curso(request):
     return render(request, 'curso/crear_curso.html', {'formulario': formulario})
 
 
+def verUnCurso(request, id):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT C.Id, C.Titulo, C.Descripcion, C.Costo, C.FechaInicio, C.FechaFinal,
+                   CONCAT_WS(' ', U.Nombre1, U.Nombre2, U.Apellido1, U.Apellido2) AS NombreInstructor
+            FROM Cursos C
+            JOIN Instructores I ON C.IdInstructor = I.Id
+            JOIN Usuarios U ON I.IdUsuario = U.Id
+            WHERE C.Id = %s
+        """, [id])
+        curso = cursor.fetchone()
+
+    if curso:
+        curso_formateado = {
+            'Id': curso[0],
+            'Titulo': curso[1],
+            'Descripcion': curso[2],
+            'Costo': curso[3],
+            'FechaInicio': curso[4],
+            'FechaFinal': curso[5],
+            'NombreInstructor': curso[6]
+        }
+        return render(request, 'curso/verUnCurso.html', {'curso': curso_formateado})
+    else:
+        return HttpResponseNotFound("Curso no encontrado")
+    
+
+def editarCurso(request, id):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT * FROM Cursos WHERE Id = %s", [id])
+        curso = cursor.fetchone()
+
+    if not curso:
+        return HttpResponseNotFound("Curso no encontrado.")
+
+    if request.method == 'POST':
+        formulario = CursoForm(request.POST)
+        if formulario.is_valid():
+            IdInstructor = formulario.cleaned_data['IdInstructor']
+            IdCategoriaCurso = formulario.cleaned_data['IdCategoriaCurso']
+            Costo = formulario.cleaned_data['Costo']
+            Titulo = formulario.cleaned_data['Titulo']
+            Descripcion = formulario.cleaned_data['Descripcion']
+            FechaInicio = formulario.cleaned_data['FechaInicio']
+            FechaFinal = formulario.cleaned_data['FechaFinal']
+            
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    UPDATE Cursos
+                    SET IdInstructor = %s, IdCategoriaCurso = %s, Costo = %s, Titulo = %s,
+                        Descripcion = %s, FechaInicio = %s, FechaFinal = %s
+                    WHERE Id = %s
+                """, [IdInstructor, IdCategoriaCurso, Costo, Titulo, Descripcion, FechaInicio, FechaFinal, id])
+                connection.commit()
+
+            return redirect('verCursos')
+    else:
+        formulario = CursoForm(initial={
+            'IdInstructor': curso[1],
+            'IdCategoriaCurso': curso[2],
+            'Costo': curso[3],
+            'Titulo': curso[4],
+            'Descripcion': curso[5],
+            'FechaInicio': curso[6],
+            'FechaFinal': curso[7]
+        })
+
+    return render(request, 'curso/editarCurso.html', {'formulario': formulario})
+
+
+
+
+def eliminarCurso(request, id):
+    if request.method == 'POST':
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM Cursos WHERE Id = %s", [id])
+            connection.commit()
+        return redirect('verCursos')
+    else:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT Titulo FROM Cursos WHERE Id = %s
+            """, [id])
+            curso = cursor.fetchone()
+
+        if curso:
+            return render(request, 'curso/eliminarCurso.html', {'curso': curso[0]})
+        else:
+            return HttpResponseNotFound("Curso no encontrado")
 
 
 
