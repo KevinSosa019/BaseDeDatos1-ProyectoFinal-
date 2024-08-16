@@ -227,9 +227,27 @@ def verUnCurso(request, id):
         return render(request, 'curso/verUnCurso.html', {'curso': curso_formateado})
     else:
         return HttpResponseNotFound("Curso no encontrado")
-    
+
+def eliminarCurso(request, id):
+    if request.method == 'POST':
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM Cursos WHERE Id = %s", [id])
+            connection.commit()
+        return redirect('verCursos')
+    else:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT Titulo FROM Cursos WHERE Id = %s
+            """, [id])
+            curso = cursor.fetchone()
+
+        if curso:
+            return render(request, 'curso/eliminarCurso.html', {'curso': curso[0]})
+        else:
+            return HttpResponseNotFound("Curso no encontrado")
 
 def editarCurso(request, id):
+    # Consultar los datos del curso a editar
     with connection.cursor() as cursor:
         cursor.execute("SELECT * FROM Cursos WHERE Id = %s", [id])
         curso = cursor.fetchone()
@@ -237,8 +255,19 @@ def editarCurso(request, id):
     if not curso:
         return HttpResponseNotFound("Curso no encontrado.")
 
+    # Consultar opciones para instructores y categorías
+    query_instructores = """
+    SELECT I.Id, CONCAT_WS(' ', U.Nombre1, U.Nombre2, U.Apellido1, U.Apellido2) AS NombreCompleto
+    FROM Instructores I
+    JOIN Usuarios U ON I.IdUsuario = U.Id
+    """
+    opciones_instructor = obtener_opciones(query_instructores)
+    
+    query_categorias = "SELECT Id, Nombre FROM CategoriaCursos"
+    opciones_categoria = obtener_opciones(query_categorias)
+
     if request.method == 'POST':
-        formulario = CursoForm(request.POST)
+        formulario = CursoForm(request.POST, opciones_instructor=opciones_instructor, opciones_categoria=opciones_categoria)
         if formulario.is_valid():
             IdInstructor = formulario.cleaned_data['IdInstructor']
             IdCategoriaCurso = formulario.cleaned_data['IdCategoriaCurso']
@@ -259,38 +288,20 @@ def editarCurso(request, id):
 
             return redirect('verCursos')
     else:
-        formulario = CursoForm(initial={
-            'IdInstructor': curso[1],
-            'IdCategoriaCurso': curso[2],
-            'Costo': curso[3],
-            'Titulo': curso[4],
-            'Descripcion': curso[5],
-            'FechaInicio': curso[6],
-            'FechaFinal': curso[7]
-        })
+        formulario = CursoForm(
+            initial={
+                'IdInstructor': curso[1],
+                'IdCategoriaCurso': curso[2],
+                'Costo': curso[3],
+                'Titulo': curso[4],
+                'Descripcion': curso[5],
+                'FechaInicio': curso[6],
+                'FechaFinal': curso[7]
+            },
+            opciones_instructor=opciones_instructor,
+            opciones_categoria=opciones_categoria
+        )
 
     return render(request, 'curso/editarCurso.html', {'formulario': formulario})
-
-
-
-
-def eliminarCurso(request, id):
-    if request.method == 'POST':
-        with connection.cursor() as cursor:
-            cursor.execute("DELETE FROM Cursos WHERE Id = %s", [id])
-            connection.commit()
-        return redirect('verCursos')
-    else:
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT Titulo FROM Cursos WHERE Id = %s
-            """, [id])
-            curso = cursor.fetchone()
-
-        if curso:
-            return render(request, 'curso/eliminarCurso.html', {'curso': curso[0]})
-        else:
-            return HttpResponseNotFound("Curso no encontrado")
-
 
 
