@@ -247,9 +247,7 @@ def eliminarCurso(request, id):
         else:
             return HttpResponseNotFound("Curso no encontrado")
 
-<<<<<<< HEAD
-def generar_factura(request):
-=======
+#def generar_factura(request):
 def editarCurso(request, id):
     # Consultar los datos del curso a editar
     with connection.cursor() as cursor:
@@ -379,10 +377,7 @@ def obtener_todos_los_cursos():
         } for curso in cursos
     ]
 
-
-
->>>>>>> b0c6e2692a4b75c4960528742969ae77ca6e24b5
-
+def generar_factura():
     # Consultar los datos de la factura
     with connection.cursor() as cursor:
         cursor.execute("""
