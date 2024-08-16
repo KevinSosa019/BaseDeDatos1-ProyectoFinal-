@@ -2,12 +2,13 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.db import connection
-from .forms import CustomUserCreationForm
+from .forms import CustomUserCreationForm, FacturaForm
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib import messages
 from django.db import IntegrityError
 from .forms import CursoForm
 from django.http import HttpResponseNotFound
+from datetime import datetime
 
 
 def home(request):
@@ -292,5 +293,50 @@ def eliminarCurso(request, id):
         else:
             return HttpResponseNotFound("Curso no encontrado")
 
+def generar_factura(request):
 
+    # Consultar los datos de la factura
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT
+                RTN, Nombre, Domicilio, Telefono, CorreoElectronico,
+                Denominacion, FechaLimiteEmision, NumeroCorrelativo, Destino,
+                Rango, CAI
+            FROM Factura
+            WHERE Id = 3
+        """)
+        factura = cursor.fetchone()
 
+    # Consultar los detalles de la factura si es necesario
+    # Aquí puedes añadir consultas adicionales para obtener más detalles.
+
+    if factura:
+        (rtn, nombre, domicilio, telefono, correo_electronico,
+         denominacion, fecha_limite_emision, numero_correlativo, destino,
+         rango, cai) = factura
+
+        # Renderizar la factura usando un template
+        context = {
+            'nombre': nombre,
+            'domicilio': domicilio,
+            'telefono': telefono,
+            'correo_electronico': correo_electronico,
+            'rtn': rtn,
+            'cai': cai,
+            'numero_correlativo': numero_correlativo,
+            'rango': rango,
+            'fecha_emision': datetime.now(),
+            'fecha_limite_emision': fecha_limite_emision,
+            'nombreCliente': 'Juan',
+            # Puedes añadir más datos aquí
+        }
+        return render(request, 'core/Facturacion.html', context)
+    else:
+        return HttpResponseNotFound("Factura no encontrada", status=404)
+
+def lista_categorias(request):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT * FROM CategoriaCursos")
+        categorias = cursor.fetchall()  # Obtenemos todas las filas de la tabla
+
+    return render(request, 'core/Facturacion.html', {'categorias': categorias})

@@ -43,8 +43,8 @@
                     <a class="nav-link fw-bold py-1 px-0 {% if current_page == 'register' %}active{% endif %} ms-3" href="{% url 'register' %}">Registrarse</a>
             </div>
 
-                <!-- Botón de Buscar -->
-                <form id="searchForm" class="d-flex justify-content-end ms-3" action="{% url 'busqueda' %}" method="GET"> <!-- Alineación al final -->
+                <!--Botón de Buscar-->
+                <form id="searchForm" class="d-flex justify-content-end ms-3" action="{% url 'busqueda' %}" method="GET">  <!--Alineación al final-->
                     <button class="btn btn-custom-search" type="submit"> <!-- Usar la clase personalizada -->
                         <i class="fa fa-search" style="color: black;"></i> <!-- Color del icono negro -->
                         <li class="nav-item ">
@@ -53,7 +53,8 @@
                     </button>
                 </form>
                 
-            </nav>  
+            </nav>
+
         </header>
 
         <main class="px-3">
