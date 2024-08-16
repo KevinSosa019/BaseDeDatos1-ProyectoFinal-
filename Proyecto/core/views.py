@@ -145,7 +145,7 @@ def verCursos(request):
             'FechaFinal': curso[5],
             'NombreInstructor': curso[6]
         })
-    return render(request, 'curso/verCursos.html', {'cursos': cursos_formateados})
+    return render(request, 'curso/estudiante.html', {'cursos': cursos_formateados})
 
 
 def obtener_opciones(query):
@@ -286,7 +286,7 @@ def editarCurso(request, id):
                 """, [IdInstructor, IdCategoriaCurso, Costo, Titulo, Descripcion, FechaInicio, FechaFinal, id])
                 connection.commit()
 
-            return redirect('verCursos')
+            return redirect('instructor')
     else:
         formulario = CursoForm(
             initial={
@@ -303,5 +303,79 @@ def editarCurso(request, id):
         )
 
     return render(request, 'curso/editarCurso.html', {'formulario': formulario})
+
+"""-------------------------------------------------------------------------------------------------"""
+
+def estudiante(request):
+    return render(request, 'curso/estudiante.html', {'current_page': 'estudiante'})
+
+
+def instructor(request):
+    return render(request, 'curso/instructor.html', {'current_page': 'instructor'})
+"""---------------------------------------------------------------------------------"""
+def buscar_cursos_instructor(request):
+    if request.method == "POST":
+        busqueda = request.POST.get("buscar")
+
+        if busqueda:
+            cursos = obtener_cursos_por_instructor(busqueda)
+        else:
+            cursos = obtener_todos_los_cursos()
+
+        return render(request, 'curso/instructor.html', {'cursos': cursos})
+    else:
+        return redirect('instructor')
+
+def obtener_cursos_por_instructor(nombre_instructor):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT C.Id, C.Titulo, C.Descripcion, C.Costo, C.FechaInicio, C.FechaFinal,
+                   CONCAT_WS(' ', U.Nombre1, U.Nombre2, U.Apellido1, U.Apellido2) AS NombreInstructor
+            FROM Cursos C
+            JOIN Instructores I ON C.IdInstructor = I.Id
+            JOIN Usuarios U ON I.IdUsuario = U.Id
+            WHERE CONCAT_WS(' ', U.Nombre1, U.Nombre2, U.Apellido1, U.Apellido2) LIKE %s
+            ORDER BY C.FechaInicio DESC
+        """, ['%' + nombre_instructor + '%'])
+        cursos = cursor.fetchall()
+
+    return [
+        {
+            'Id': curso[0],
+            'Titulo': curso[1],
+            'Descripcion': curso[2],
+            'Costo': curso[3],
+            'FechaInicio': curso[4],
+            'FechaFinal': curso[5],
+            'NombreInstructor': curso[6]
+        } for curso in cursos
+    ]
+
+def obtener_todos_los_cursos():
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT C.Id, C.Titulo, C.Descripcion, C.Costo, C.FechaInicio, C.FechaFinal,
+                   CONCAT_WS(' ', U.Nombre1, U.Nombre2, U.Apellido1, U.Apellido2) AS NombreInstructor
+            FROM Cursos C
+            JOIN Instructores I ON C.IdInstructor = I.Id
+            JOIN Usuarios U ON I.IdUsuario = U.Id
+            ORDER BY C.FechaInicio DESC
+        """)
+        cursos = cursor.fetchall()
+
+    return [
+        {
+            'Id': curso[0],
+            'Titulo': curso[1],
+            'Descripcion': curso[2],
+            'Costo': curso[3],
+            'FechaInicio': curso[4],
+            'FechaFinal': curso[5],
+            'NombreInstructor': curso[6]
+        } for curso in cursos
+    ]
+
+
+
 
 
