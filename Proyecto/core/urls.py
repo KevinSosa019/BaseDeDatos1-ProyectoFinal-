@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     home, verCursos, crear_curso, register, nosotros, exit_view, busqueda, 
-    verUnCurso, editarCurso, eliminarCurso,  instructor,buscar_cursos_instructor
+    verUnCurso, editarCurso, eliminarCurso,  instructor,buscar_cursos_instructor,matricularCurso
 )
 from django.conf.urls.static import static
 from django.conf import settings
@@ -27,6 +27,8 @@ urlpatterns = [
     
     
     path('buscar_cursos_instructor/', buscar_cursos_instructor, name='buscar_cursos_instructor'),
+    path('matricular/<int:id_curso>/', matricularCurso, name='matricular'),
+
     
     
 ]

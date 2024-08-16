@@ -29,6 +29,9 @@ def exit_view(request):
 def busqueda(request):
     return render(request, 'core/busqueda.html', {'current_page': 'busqueda'})
 
+
+"""=================================================================================================="""
+
 def register(request):
     datos = {
         'formulario': CustomUserCreationForm(),
@@ -36,6 +39,7 @@ def register(request):
     }
     if request.method == 'POST':
         formulario = CustomUserCreationForm(request.POST)
+        
         if formulario.is_valid():
             # Obtener los datos del formulario
             dni = formulario.cleaned_data['dni']
@@ -48,7 +52,7 @@ def register(request):
             nombre_usuario = formulario.cleaned_data['nombre_usuario']
             contrasenia = formulario.cleaned_data['contraseña1']
 
-            if not all([nombre1, apellido1, correo, nombre_usuario, contrasenia, dni]):
+            if not all([ dni, nombre1, apellido1, correo, nombre_usuario, contrasenia]):
                 messages.error(request, "Todos los campos son obligatorios.")
                 return render(request, 'registration/register.html', {'formulario': formulario})
 
@@ -374,8 +378,37 @@ def obtener_todos_los_cursos():
             'NombreInstructor': curso[6]
         } for curso in cursos
     ]
+"""========================================================================================================"""
 
 
+def matricularCurso(request, id_curso):
+    usuario_id = request.user.id  # ID del usuario autenticado
+
+    with connection.cursor() as cursor:
+        try:
+            # Verificar si el usuario ya está matriculado en el curso
+            cursor.execute("""
+                SELECT COUNT(*)
+                FROM Matriculas
+                WHERE IdCurso = %s AND IdUsuario = %s
+            """, [id_curso, usuario_id])
+            count = cursor.fetchone()[0]
+
+            if count > 0:
+                messages.info(request, "Ya estás matriculado en este curso.")
+                return redirect('verUnCurso', id=id_curso)
+
+            # Insertar la matrícula en la base de datos
+            cursor.execute("""
+                INSERT INTO Matriculas (IdCurso, IdUsuario, FechaInscripcion)
+                VALUES (%s, %s, GETDATE())
+            """, [id_curso, usuario_id])
+            connection.commit()
+            messages.success(request, "Te has matriculado exitosamente en el curso.")
+        except Exception as e:
+            messages.error(request, f"Error al matricularte en el curso: {e}")
+
+    return redirect('verUnCurso', id=id_curso)
 
 
 
