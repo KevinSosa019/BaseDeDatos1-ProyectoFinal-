@@ -1,0 +1,38 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<main class="px-3">
+    <div class="album py-5 bg-dark">
+        <div class="container">
+            <h1 class="text-light">Lista de Cursos</h1>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 g-3">
+                {% for curso in cursos %}
+                    <div class="col">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ curso.Titulo }}</h5>
+                                <p class="card-text">{{ curso.Descripcion }}</p>
+                                <p class="card-text">Costo: ${{ curso.Costo }}</p>
+                                <p class="card-text">Fecha Inicio: {{ curso.FechaInicio|date:"d/m/Y" }}</p>
+                                <p class="card-text">Fecha Final: {{ curso.FechaFinal|date:"d/m/Y" }}</p>
+                                <p class="card-text">Instructor: {{ curso.NombreInstructor }}</p>
+                            </div>
+
+                            <div class="card-footer d-flex justify-content-between align-items-center">
+                                <div class="btn-group">
+                                    <a href="verUnCurso/{{curso.Id}}" class="btn btn-sm btn-light">Ver Curso</a>
+                                </div>
+                                <small class="text-muted">Publicado hace {{ curso.fechaPublicacion|date:"d/m/Y" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12">
+                        <p class="text-center text-light">No estás inscrito en ningún curso.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

@@ -35,7 +35,10 @@
                 
                 <div class="collapse navbar-collapse text-light" id="navbarNav">
                     <a class="nav-link fw-bold py-1 px-0 {% if current_page == 'nosotros' %}active{% endif %} ms-3" href="{% url 'nosotros' %}">Nosotros</a>
-                    <a class="nav-link fw-bold py-1 px-0 {% if current_page == 'products' %}active{% endif %} ms-3" href="{% url 'verCursos' %}">Cursos</a>
+                    <a class="nav-link fw-bold py-1 px-0 {% if current_page == 'instructor' %}active{% endif %} ms-3" href="{% url 'instructor' %}">Instructor</a>
+                    <a class="nav-link fw-bold py-1 px-0 {% if current_page == 'estudiante' %}active{% endif %} ms-3" href="{% url 'estudiante' %}">Estudiante</a>
+
+
                     <button type="button" class="btn nav-link fw-bold py-1 px-0 ms-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
                         Salir
                     </button>

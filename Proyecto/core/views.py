@@ -146,7 +146,7 @@ def verCursos(request):
             'FechaFinal': curso[5],
             'NombreInstructor': curso[6]
         })
-    return render(request, 'curso/verCursos.html', {'cursos': cursos_formateados})
+    return render(request, 'curso/estudiante.html', {'cursos': cursos_formateados})
 
 
 def obtener_opciones(query):
@@ -228,52 +228,6 @@ def verUnCurso(request, id):
         return render(request, 'curso/verUnCurso.html', {'curso': curso_formateado})
     else:
         return HttpResponseNotFound("Curso no encontrado")
-    
-
-def editarCurso(request, id):
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT * FROM Cursos WHERE Id = %s", [id])
-        curso = cursor.fetchone()
-
-    if not curso:
-        return HttpResponseNotFound("Curso no encontrado.")
-
-    if request.method == 'POST':
-        formulario = CursoForm(request.POST)
-        if formulario.is_valid():
-            IdInstructor = formulario.cleaned_data['IdInstructor']
-            IdCategoriaCurso = formulario.cleaned_data['IdCategoriaCurso']
-            Costo = formulario.cleaned_data['Costo']
-            Titulo = formulario.cleaned_data['Titulo']
-            Descripcion = formulario.cleaned_data['Descripcion']
-            FechaInicio = formulario.cleaned_data['FechaInicio']
-            FechaFinal = formulario.cleaned_data['FechaFinal']
-            
-            with connection.cursor() as cursor:
-                cursor.execute("""
-                    UPDATE Cursos
-                    SET IdInstructor = %s, IdCategoriaCurso = %s, Costo = %s, Titulo = %s,
-                        Descripcion = %s, FechaInicio = %s, FechaFinal = %s
-                    WHERE Id = %s
-                """, [IdInstructor, IdCategoriaCurso, Costo, Titulo, Descripcion, FechaInicio, FechaFinal, id])
-                connection.commit()
-
-            return redirect('verCursos')
-    else:
-        formulario = CursoForm(initial={
-            'IdInstructor': curso[1],
-            'IdCategoriaCurso': curso[2],
-            'Costo': curso[3],
-            'Titulo': curso[4],
-            'Descripcion': curso[5],
-            'FechaInicio': curso[6],
-            'FechaFinal': curso[7]
-        })
-
-    return render(request, 'curso/editarCurso.html', {'formulario': formulario})
-
-
-
 
 def eliminarCurso(request, id):
     if request.method == 'POST':
@@ -293,7 +247,141 @@ def eliminarCurso(request, id):
         else:
             return HttpResponseNotFound("Curso no encontrado")
 
+<<<<<<< HEAD
 def generar_factura(request):
+=======
+def editarCurso(request, id):
+    # Consultar los datos del curso a editar
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT * FROM Cursos WHERE Id = %s", [id])
+        curso = cursor.fetchone()
+
+    if not curso:
+        return HttpResponseNotFound("Curso no encontrado.")
+
+    # Consultar opciones para instructores y categorías
+    query_instructores = """
+    SELECT I.Id, CONCAT_WS(' ', U.Nombre1, U.Nombre2, U.Apellido1, U.Apellido2) AS NombreCompleto
+    FROM Instructores I
+    JOIN Usuarios U ON I.IdUsuario = U.Id
+    """
+    opciones_instructor = obtener_opciones(query_instructores)
+    
+    query_categorias = "SELECT Id, Nombre FROM CategoriaCursos"
+    opciones_categoria = obtener_opciones(query_categorias)
+
+    if request.method == 'POST':
+        formulario = CursoForm(request.POST, opciones_instructor=opciones_instructor, opciones_categoria=opciones_categoria)
+        if formulario.is_valid():
+            IdInstructor = formulario.cleaned_data['IdInstructor']
+            IdCategoriaCurso = formulario.cleaned_data['IdCategoriaCurso']
+            Costo = formulario.cleaned_data['Costo']
+            Titulo = formulario.cleaned_data['Titulo']
+            Descripcion = formulario.cleaned_data['Descripcion']
+            FechaInicio = formulario.cleaned_data['FechaInicio']
+            FechaFinal = formulario.cleaned_data['FechaFinal']
+            
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    UPDATE Cursos
+                    SET IdInstructor = %s, IdCategoriaCurso = %s, Costo = %s, Titulo = %s,
+                        Descripcion = %s, FechaInicio = %s, FechaFinal = %s
+                    WHERE Id = %s
+                """, [IdInstructor, IdCategoriaCurso, Costo, Titulo, Descripcion, FechaInicio, FechaFinal, id])
+                connection.commit()
+
+            return redirect('instructor')
+    else:
+        formulario = CursoForm(
+            initial={
+                'IdInstructor': curso[1],
+                'IdCategoriaCurso': curso[2],
+                'Costo': curso[3],
+                'Titulo': curso[4],
+                'Descripcion': curso[5],
+                'FechaInicio': curso[6],
+                'FechaFinal': curso[7]
+            },
+            opciones_instructor=opciones_instructor,
+            opciones_categoria=opciones_categoria
+        )
+
+    return render(request, 'curso/editarCurso.html', {'formulario': formulario})
+
+"""-------------------------------------------------------------------------------------------------"""
+
+def estudiante(request):
+    return render(request, 'curso/estudiante.html', {'current_page': 'estudiante'})
+
+
+def instructor(request):
+    return render(request, 'curso/instructor.html', {'current_page': 'instructor'})
+"""---------------------------------------------------------------------------------"""
+def buscar_cursos_instructor(request):
+    if request.method == "POST":
+        busqueda = request.POST.get("buscar")
+
+        if busqueda:
+            cursos = obtener_cursos_por_instructor(busqueda)
+        else:
+            cursos = obtener_todos_los_cursos()
+
+        return render(request, 'curso/instructor.html', {'cursos': cursos})
+    else:
+        return redirect('instructor')
+
+def obtener_cursos_por_instructor(nombre_instructor):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT C.Id, C.Titulo, C.Descripcion, C.Costo, C.FechaInicio, C.FechaFinal,
+                   CONCAT_WS(' ', U.Nombre1, U.Nombre2, U.Apellido1, U.Apellido2) AS NombreInstructor
+            FROM Cursos C
+            JOIN Instructores I ON C.IdInstructor = I.Id
+            JOIN Usuarios U ON I.IdUsuario = U.Id
+            WHERE CONCAT_WS(' ', U.Nombre1, U.Nombre2, U.Apellido1, U.Apellido2) LIKE %s
+            ORDER BY C.FechaInicio DESC
+        """, ['%' + nombre_instructor + '%'])
+        cursos = cursor.fetchall()
+
+    return [
+        {
+            'Id': curso[0],
+            'Titulo': curso[1],
+            'Descripcion': curso[2],
+            'Costo': curso[3],
+            'FechaInicio': curso[4],
+            'FechaFinal': curso[5],
+            'NombreInstructor': curso[6]
+        } for curso in cursos
+    ]
+
+def obtener_todos_los_cursos():
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT C.Id, C.Titulo, C.Descripcion, C.Costo, C.FechaInicio, C.FechaFinal,
+                   CONCAT_WS(' ', U.Nombre1, U.Nombre2, U.Apellido1, U.Apellido2) AS NombreInstructor
+            FROM Cursos C
+            JOIN Instructores I ON C.IdInstructor = I.Id
+            JOIN Usuarios U ON I.IdUsuario = U.Id
+            ORDER BY C.FechaInicio DESC
+        """)
+        cursos = cursor.fetchall()
+
+    return [
+        {
+            'Id': curso[0],
+            'Titulo': curso[1],
+            'Descripcion': curso[2],
+            'Costo': curso[3],
+            'FechaInicio': curso[4],
+            'FechaFinal': curso[5],
+            'NombreInstructor': curso[6]
+        } for curso in cursos
+    ]
+
+
+
+>>>>>>> b0c6e2692a4b75c4960528742969ae77ca6e24b5
 
     # Consultar los datos de la factura
     with connection.cursor() as cursor:
