@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import home, verCursos, crear_curso, register, nosotros, exit_view, busqueda, verUnCurso, editarCurso, eliminarCurso, generar_factura
+from .views import home, verCursos, crear_curso, register, nosotros, exit_view, busqueda, verUnCurso, editarCurso, eliminarCurso, generar_factura, seleccionar_usuario, matricular_curso
 from .views import (
     home, verCursos, crear_curso, register, nosotros, exit_view, busqueda, 
     verUnCurso, editarCurso, eliminarCurso,  instructor,buscar_cursos_instructor
@@ -28,6 +28,7 @@ urlpatterns = [
     path('verCursos/crear_curso/', crear_curso, name='crear_curso'),  # Ruta para crear curso
     
     path('estudiante/verUnCurso/<int:id>/', verUnCurso, name='verUnCurso'),
+    #path('estudiante/verUnCurso/<int:id>/matricular', verUnCurso, name='verUnCurso'),
     path('instructor/editarCurso/<int:id>/', editarCurso, name='editarCurso'),
     path('instructor/eliminarCurso/<int:id>/', eliminarCurso, name='eliminarCurso'),
     
@@ -35,6 +36,8 @@ urlpatterns = [
     path('buscar_cursos_instructor/', buscar_cursos_instructor, name='buscar_cursos_instructor'),
     
     path('generar-factura/', generar_factura, name='generar_factura'),
+
+    path('matricular/<int:id_usuario>/<int:id_curso>/', matricular_curso, name='matricular_curso'),
 ]
 
 if settings.DEBUG:

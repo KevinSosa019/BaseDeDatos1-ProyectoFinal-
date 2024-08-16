@@ -215,6 +215,8 @@ def verUnCurso(request, id):
         """, [id])
         curso = cursor.fetchone()
 
+    usuarios = seleccionar_usuario()
+
     if curso:
         curso_formateado = {
             'Id': curso[0],
@@ -225,7 +227,7 @@ def verUnCurso(request, id):
             'FechaFinal': curso[5],
             'NombreInstructor': curso[6]
         }
-        return render(request, 'curso/verUnCurso.html', {'curso': curso_formateado})
+        return render(request, 'curso/verUnCurso.html', {'curso': curso_formateado , 'usuarios': usuarios})
     else:
         return HttpResponseNotFound("Curso no encontrado")
 
@@ -377,7 +379,7 @@ def obtener_todos_los_cursos():
         } for curso in cursos
     ]
 
-def generar_factura():
+def generar_factura(request):
     # Consultar los datos de la factura
     with connection.cursor() as cursor:
         cursor.execute("""
@@ -423,3 +425,20 @@ def lista_categorias(request):
         categorias = cursor.fetchall()  # Obtenemos todas las filas de la tabla
 
     return render(request, 'core/Facturacion.html', {'categorias': categorias})
+
+def seleccionar_usuario():
+    with connection.cursor() as cursor:
+        # Obtener usuarios que no están en la tabla Instructores
+        cursor.execute("""
+            SELECT u.Id, u.Nombre1, u.Apellido1
+            FROM usuarios u 
+            LEFT JOIN instructores i ON u.id = i.IdUsuario 
+            WHERE i.IdUsuario IS NULL
+        """)
+        usuarios = cursor.fetchall()
+
+    return usuarios
+
+def matricular_curso(request, idUsuario, idCurso):
+    
+    return render(request, 'core/matricular.html', {'current_page': 'matricular'})
