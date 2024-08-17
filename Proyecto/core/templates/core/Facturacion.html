@@ -1,0 +1,41 @@
+<!--<h1 style="margin: 50px;">Generar Factura</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Generar Factura</button>
+</form>
+
+<h1>Lista de Categorías de Cursos</h1>
+    <ul>
+        {% for categoria in categorias %}
+            <li>{{ categoria.1 }}: {{ categoria.2 }}</li>
+        {% endfor %}
+    </ul>-->
+
+    <style>
+        pre { font-family: monospace;
+                font-size: 20px;
+                margin: 0 auto;}
+    </style>
+
+    <pre>
+        <center>
+        Nombre: {{ nombre }}
+        Domicilio: {{ domicilio }}
+        Telefono {{ telefono }}
+        Correo: {{ correo_electronico }}
+        RTN: {{ rtn }}
+        CAI: {{ cai }}
+        Numero Correlativo: {{ numero_correlativo }}
+        Rango del 00000001 al {{ rango }}
+        ----------------------------------------
+        Cliente: {{ nombreCliente }}
+        Fecha Emision: {{ fecha_emision }}
+        Fecha Limite de Emision: {{ fecha_limite_emision }}
+        ----------------------------------------
+        Sub Total: {{ subtotal }} Lps
+        ISV: {{ isv }}%
+        Total: {{ total }}
+        ----------Gracias por su compra---------
+</center>
+    </pre>

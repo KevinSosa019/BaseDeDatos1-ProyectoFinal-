@@ -2,12 +2,13 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.db import connection
-from .forms import CustomUserCreationForm
+from .forms import CustomUserCreationForm, FacturaForm
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib import messages
 from django.db import IntegrityError
 from .forms import CursoForm
 from django.http import HttpResponseNotFound
+from datetime import datetime
 
 
 def home(request):
@@ -250,6 +251,7 @@ def eliminarCurso(request, id):
         else:
             return HttpResponseNotFound("Curso no encontrado")
 
+#def generar_factura(request):
 def editarCurso(request, id):
     # Consultar los datos del curso a editar
     with connection.cursor() as cursor:
@@ -378,37 +380,8 @@ def obtener_todos_los_cursos():
             'NombreInstructor': curso[6]
         } for curso in cursos
     ]
-"""========================================================================================================"""
 
 
-def matricularCurso(request, id_curso):
-    usuario_id = request.user.id  # ID del usuario autenticado
-
-    with connection.cursor() as cursor:
-        try:
-            # Verificar si el usuario ya está matriculado en el curso
-            cursor.execute("""
-                SELECT COUNT(*)
-                FROM Matriculas
-                WHERE IdCurso = %s AND IdUsuario = %s
-            """, [id_curso, usuario_id])
-            count = cursor.fetchone()[0]
-
-            if count > 0:
-                messages.info(request, "Ya estás matriculado en este curso.")
-                return redirect('verUnCurso', id=id_curso)
-
-            # Insertar la matrícula en la base de datos
-            cursor.execute("""
-                INSERT INTO Matriculas (IdCurso, IdUsuario, FechaInscripcion)
-                VALUES (%s, %s, GETDATE())
-            """, [id_curso, usuario_id])
-            connection.commit()
-            messages.success(request, "Te has matriculado exitosamente en el curso.")
-        except Exception as e:
-            messages.error(request, f"Error al matricularte en el curso: {e}")
-
-    return redirect('verUnCurso', id=id_curso)
 
 
 

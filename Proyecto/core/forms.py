@@ -54,3 +54,9 @@ class CursoForm(forms.Form):
         super(CursoForm, self).__init__(*args, **kwargs)
         self.fields['IdInstructor'].widget = forms.Select(choices=opciones_instructor)
         self.fields['IdCategoriaCurso'].widget = forms.Select(choices=opciones_categoria)
+
+class FacturaForm(forms.Form):
+    nombre_cliente = forms.CharField(required=False, label='Nombre Cliente', max_length=255)
+    subtotal = forms.DecimalField(label='Sub Total', max_digits=10, decimal_places=2)
+    isv = forms.DecimalField(label='ISV', max_digits=5, decimal_places=2, initial=15.0)
+    punto_emision = forms.CharField(label='Punto de Emisión', max_length=255, initial='ONLINE')

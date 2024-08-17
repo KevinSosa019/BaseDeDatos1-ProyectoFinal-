@@ -1,4 +1,5 @@
 from django.urls import path
+from .views import home, verCursos, crear_curso, register, nosotros, exit_view, busqueda, verUnCurso, editarCurso, eliminarCurso, generar_factura
 from .views import (
     home, verCursos, crear_curso, register, nosotros, exit_view, busqueda, 
     verUnCurso, editarCurso, eliminarCurso,  instructor,buscar_cursos_instructor,matricularCurso
@@ -13,6 +14,11 @@ urlpatterns = [
     path('logout/', exit_view, name='logout'),
     path('busqueda/', busqueda, name='busqueda'),
     
+    path('verCursos/verUnCurso/<int:id>/', verUnCurso, name='verUnCurso'),
+    path('verCursos/editarCurso/<int:id>/', editarCurso, name='editarCurso'),
+    path('verCursos/eliminarCurso/<int:id>/', eliminarCurso, name='eliminarCurso'),
+
+    path('generar-factura/', generar_factura, name='generar_factura'),
     path('estudiante/', verCursos, name='estudiante'),
     path('instructor/', instructor, name='instructor'),
     path('instructor/crear_curso/', crear_curso, name='crear_curso'),  # Ruta para crear curso desde instructor
@@ -30,7 +36,7 @@ urlpatterns = [
     path('matricular/<int:id_curso>/', matricularCurso, name='matricular'),
 
     
-    
+    path('generar-factura/', generar_factura, name='generar_factura'),
 ]
 
 if settings.DEBUG:
