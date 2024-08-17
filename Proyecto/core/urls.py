@@ -29,10 +29,7 @@ urlpatterns = [
     path('buscar_cursos_instructor/', buscar_cursos_instructor, name='buscar_cursos_instructor'),
     path('generar-factura/', generar_factura, name='generar_factura'),
 
-
-    path('curso/<int:idCurso>/matricular/', matricular_curso, name='matricular'),
-    path('confirmar_matricula/', confirmar_matricula, name='confirmar_matricula'),
-    
+    path('matricular/<int:id_usuario>/<int:id_curso>/', matricular_curso, name='matricular_curso'),
 ]
 
 if settings.DEBUG:

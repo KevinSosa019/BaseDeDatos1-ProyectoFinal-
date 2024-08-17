@@ -12,6 +12,7 @@
       <p class="card-text">Fecha Final: {{ curso.FechaFinal|date:"d/m/Y" }}</p>
       <p class="card-text">Instructor: {{ curso.NombreInstructor }}</p>
     </div>
+<<<<<<< HEAD
 
 
     <!-- Botón para matricularse  -->
@@ -24,8 +25,44 @@
     
     </div>
     <div class="card-body">
+=======
+    <div class="card-footer">
+      <!--<a href="{% url 'estudiante' %}" class="btn btn-primary">Matricula</a>-->
+      <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        Matricular
+      </button>
+>>>>>>> ddee7fa322aaf754dbd6ee177c4c6aff66876095
       <a href="{% url 'estudiante' %}" class="btn btn-secondary">Volver</a>
     </div>
   </div>
 </main>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content" style="height: 300px;">
+          <div class="modal-header bg-gray">
+              <h1 class="modal-title fs-5 ms-auto text-light" id="exampleModalLabel">Datos Personales</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body bg-gray text-light">
+              Identificate
+          </div>
+            <form method="post" style="margin-bottom: 40px;">
+              {% csrf_token %}
+              <label for="usuario" style="margin-bottom: 20px;">Seleccione su Usuario</label><br>
+              <center>
+                <select name="usuario" id="usuario" class="form-select" style="width: 60%; margin-bottom: 20px;">
+                </center>
+                    {% for usuario in usuarios %}
+                    <option value="{{ usuario.0 }}">{{ usuario.1 }} {{ usuario.2 }}</option>
+                    {% endfor %}
+                </select>
+                <a class="btn btn-primary" href="../curso/matricular/{{id_usuario}}/{{int:id_curso}}/">
+                  Mandar a Pagar
+                </a>
+            </form>
+      </div>
+  </div>
+</div>
 {% endblock %}
