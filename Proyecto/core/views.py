@@ -2,13 +2,15 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.db import connection
-from .forms import CustomUserCreationForm, FacturaForm
+from .forms import CustomUserCreationForm, FacturaForm, ConfirmarMatriculaForm
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib import messages
 from django.db import IntegrityError
 from .forms import CursoForm
 from django.http import HttpResponseNotFound
 from datetime import datetime
+from django.utils import timezone
+
 
 
 def home(request):
@@ -30,9 +32,6 @@ def exit_view(request):
 def busqueda(request):
     return render(request, 'core/busqueda.html', {'current_page': 'busqueda'})
 
-
-"""=================================================================================================="""
-
 def register(request):
     datos = {
         'formulario': CustomUserCreationForm(),
@@ -40,7 +39,6 @@ def register(request):
     }
     if request.method == 'POST':
         formulario = CustomUserCreationForm(request.POST)
-        
         if formulario.is_valid():
             # Obtener los datos del formulario
             dni = formulario.cleaned_data['dni']
@@ -53,7 +51,7 @@ def register(request):
             nombre_usuario = formulario.cleaned_data['nombre_usuario']
             contrasenia = formulario.cleaned_data['contraseña1']
 
-            if not all([ dni, nombre1, apellido1, correo, nombre_usuario, contrasenia]):
+            if not all([nombre1, apellido1, correo, nombre_usuario, contrasenia, dni]):
                 messages.error(request, "Todos los campos son obligatorios.")
                 return render(request, 'registration/register.html', {'formulario': formulario})
 
@@ -219,6 +217,8 @@ def verUnCurso(request, id):
         """, [id])
         curso = cursor.fetchone()
 
+    usuarios = seleccionar_usuario()
+
     if curso:
         curso_formateado = {
             'Id': curso[0],
@@ -229,7 +229,7 @@ def verUnCurso(request, id):
             'FechaFinal': curso[5],
             'NombreInstructor': curso[6]
         }
-        return render(request, 'curso/verUnCurso.html', {'curso': curso_formateado})
+        return render(request, 'curso/verUnCurso.html', {'curso': curso_formateado , 'usuarios': usuarios})
     else:
         return HttpResponseNotFound("Curso no encontrado")
 
@@ -318,7 +318,49 @@ def estudiante(request):
 
 def instructor(request):
     return render(request, 'curso/instructor.html', {'current_page': 'instructor'})
+
+def generar_factura(request):
+    # Consultar los datos de la factura
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT
+                RTN, Nombre, Domicilio, Telefono, CorreoElectronico,
+                Denominacion, FechaLimiteEmision, NumeroCorrelativo, Destino,
+                Rango, CAI
+            FROM Factura
+            WHERE Id = 3
+        """)
+        factura = cursor.fetchone()
+
+    # Consultar los detalles de la factura si es necesario
+    # Aquí puedes añadir consultas adicionales para obtener más detalles.
+
+    if factura:
+        (rtn, nombre, domicilio, telefono, correo_electronico,
+         denominacion, fecha_limite_emision, numero_correlativo, destino,
+         rango, cai) = factura
+
+        # Renderizar la factura usando un template
+        context = {
+            'nombre': nombre,
+            'domicilio': domicilio,
+            'telefono': telefono,
+            'correo_electronico': correo_electronico,
+            'rtn': rtn,
+            'cai': cai,
+            'numero_correlativo': numero_correlativo,
+            'rango': rango,
+            'fecha_emision': datetime.now(),
+            'fecha_limite_emision': fecha_limite_emision,
+            'nombreCliente': 'Juan',
+            # Puedes añadir más datos aquí
+        }
+        return render(request, 'core/Facturacion.html', context)
+    else:
+        return HttpResponseNotFound("Factura no encontrada", status=404)
+
 """---------------------------------------------------------------------------------"""
+
 def buscar_cursos_instructor(request):
     if request.method == "POST":
         busqueda = request.POST.get("buscar")
@@ -382,6 +424,65 @@ def obtener_todos_los_cursos():
     ]
 
 
+def lista_categorias(request):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT * FROM CategoriaCursos")
+        categorias = cursor.fetchall()  # Obtenemos todas las filas de la tabla
+
+    return render(request, 'core/Facturacion.html', {'categorias': categorias})
+
+def seleccionar_usuario():
+    with connection.cursor() as cursor:
+        # Obtener usuarios que no están en la tabla Instructores
+        cursor.execute("""
+            SELECT u.Id, u.Nombre1, u.Apellido1
+            FROM usuarios u 
+            LEFT JOIN instructores i ON u.id = i.IdUsuario 
+            WHERE i.IdUsuario IS NULL
+        """)
+        usuarios = cursor.fetchall()
+
+    return usuarios
+
+def matricular_curso(request, idUsuario, idCurso):
+    
+    return render(request, 'core/matricular.html', {'current_page': 'matricular'})
+
+
+"""--------------------------------------------------------------------------------------------"""
+
+
+def matricular_curso(request, idCurso):
+    with connection.cursor() as cursor:
+        # Obtener las opciones de pago disponibles
+        cursor.execute("SELECT Id, Nombre FROM TipoPagos")
+        tipo_pagos = cursor.fetchall()
+
+    contexto = {
+        'tipo_pagos': tipo_pagos,
+        'idCurso': idCurso,
+    }
+
+    return render(request, 'matricula/matricular.html', contexto)
+
+
+
+def curso_existe(id_curso):
+    with connection.cursor() as cursor:
+        cursor.execute('SELECT COUNT(*) FROM Cursos WHERE Id = %s', [id_curso])
+        return cursor.fetchone()[0] > 0
+
+def usuario_existe(id_usuario):
+    with connection.cursor() as cursor:
+        cursor.execute('SELECT COUNT(*) FROM Usuarios WHERE Id = %s', [id_usuario])
+        return cursor.fetchone()[0] > 0
+
+
+
+def obtener_tipo_pagos():
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT Id, Nombre FROM TipoPagos")
+        return cursor.fetchall()
 
 
 

@@ -18,10 +18,10 @@
     
 
     <div class="card-footer ">
-      <form action="" method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-primary ">Matricularse</button>
-      </form>
+      <form action="{% url 'matricular' curso.Id %}" method="get">
+        <button type="submit" class="btn btn-primary">Matricularse</button>
+    </form>
+    
     </div>
     <div class="card-body">
       <a href="{% url 'estudiante' %}" class="btn btn-secondary">Volver</a>

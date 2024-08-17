@@ -60,3 +60,9 @@ class FacturaForm(forms.Form):
     subtotal = forms.DecimalField(label='Sub Total', max_digits=10, decimal_places=2)
     isv = forms.DecimalField(label='ISV', max_digits=5, decimal_places=2, initial=15.0)
     punto_emision = forms.CharField(label='Punto de Emisión', max_length=255, initial='ONLINE')
+
+class ConfirmarMatriculaForm(forms.Form):
+    id_curso = forms.IntegerField(widget=forms.HiddenInput())
+    id_usuario = forms.IntegerField(widget=forms.HiddenInput())
+    costo_pagado = forms.DecimalField(max_digits=10, decimal_places=2, required=True, label='Costo Pagado')
+    id_tipo_pago = forms.ChoiceField(choices=[], required=True, label='Tipo de Pago')
