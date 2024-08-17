@@ -6,7 +6,7 @@
     <div class="card">
         <div class="card-body">
             <!-- Selección de tipo de pago -->
-            <form action="{% url 'confirmar_matricula' %}" method="post">
+            <form action="" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="id_curso" value="{{ idCurso }}">
                 

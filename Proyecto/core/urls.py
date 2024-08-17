@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import home, verCursos, crear_curso, register, nosotros, exit_view, busqueda, verUnCurso, editarCurso, eliminarCurso, generar_factura, seleccionar_usuario, matricular_curso
 from .views import (
-    home, verCursos, crear_curso, register, nosotros, exit_view, busqueda, confirmar_matricula,
+    home, verCursos, crear_curso, register, nosotros, exit_view, busqueda, 
     verUnCurso, editarCurso, eliminarCurso,  instructor,buscar_cursos_instructor
 )
 from django.conf.urls.static import static
@@ -29,7 +29,7 @@ urlpatterns = [
     path('buscar_cursos_instructor/', buscar_cursos_instructor, name='buscar_cursos_instructor'),
     path('generar-factura/', generar_factura, name='generar_factura'),
 
-    path('matricular/<int:id_usuario>/<int:id_curso>/', matricular_curso, name='matricular_curso'),
+    path('matricular/<int:id_curso>/', matricular_curso, name='matricular'),
 ]
 
 if settings.DEBUG:

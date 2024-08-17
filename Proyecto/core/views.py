@@ -491,7 +491,7 @@ def matricular_curso(request, idUsuario, idCurso):
 """--------------------------------------------------------------------------------------------"""
 
 
-def matricular_curso(request, idCurso):
+def matricular_curso(request, id_curso):  # Cambia 'idCurso' a 'id_curso'
     with connection.cursor() as cursor:
         # Obtener las opciones de pago disponibles
         cursor.execute("SELECT Id, Nombre FROM TipoPagos")
@@ -499,30 +499,9 @@ def matricular_curso(request, idCurso):
 
     contexto = {
         'tipo_pagos': tipo_pagos,
-        'idCurso': idCurso,
+        'idCurso': id_curso,  # Cambia 'idCurso' a 'id_curso'
     }
 
     return render(request, 'matricula/matricular.html', contexto)
 
 
-
-def curso_existe(id_curso):
-    with connection.cursor() as cursor:
-        cursor.execute('SELECT COUNT(*) FROM Cursos WHERE Id = %s', [id_curso])
-        return cursor.fetchone()[0] > 0
-
-def usuario_existe(id_usuario):
-    with connection.cursor() as cursor:
-        cursor.execute('SELECT COUNT(*) FROM Usuarios WHERE Id = %s', [id_usuario])
-        return cursor.fetchone()[0] > 0
-
-
-
-def obtener_tipo_pagos():
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT Id, Nombre FROM TipoPagos")
-        return cursor.fetchall()
-
-
-
-    return render(request, 'core/matricular.html', {'current_page': 'matricular'})
